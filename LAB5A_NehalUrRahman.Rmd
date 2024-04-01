@@ -1,0 +1,115 @@
+---
+title: "Lab 5A"
+author: "Nehal Ur Rahman"
+date: "`r Sys.Date()`"
+output: word_document
+---
+NAME: NEHAL UR RAHMNAN
+STUDENT ID: 991691259
+
+Introduction: 
+In lab 5A we are going to analyze Pokemon dataset and perform the given instructions to answer the questions.
+This dataset is about the different types of pokemon and its strengths in terms of HP, Attack, Defense, Special attack, Special Defense and Speed.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#We are loading the below library to perform various functions.
+```{r}
+library(sets)
+library(ggplot2)
+library(tidyverse)
+library(ISLR)
+library(moments)
+library(dplyr) 
+library(GGally)
+```
+The Pokemon data is loaded by setting the session directory. 
+```{r}
+poke <- read.csv("Pokemon.csv")
+head(poke)
+```
+
+We are using the cat function to print the column names of the pokemon dataset with the help of colnames function.
+```{r}
+cat("Column Names : ", colnames(poke))
+```
+
+Using Summary function`we display the statistical information about the numerical variables in the dataset.
+```{r}
+cat("\nSummary of data: \n \n")
+summary(poke)
+```
+
+I have checked if there are any NA values present in the dataset to see if cleaning is required.
+```{r}
+colSums(is.na(poke))
+```
+```{r}
+str(poke)
+```
+
+The Pokemon dataset consists of 800 observations and 13 variables.
+3 of the variables are of character type, 9 are of integer type and 1 of logical type.
+
+##QUestion 1
+
+Exploration
+```{r}
+barplot(table(poke$Type.1), main="Barplot of Different Type 1 Pokeomon", col="red" , xlab="Type 1 of Pokemon ")
+```
+
+```{r}
+barplot(table(poke$Type.2), main="Barplot of Different Type 2 Pokeomon", col="skyblue" , xlab="Type 2 of Pokemon")
+```
+
+```{r}
+as.factor(poke$Legendary)
+barplot(table(poke$Legendary), main="Barplot of total number of Legendary Pokemon", col="gold" , xlab="TRUE = LEGENDARY POKE & FALSE = NOT LEGENDARY POKE")
+```
+```{r}
+ggcorr(poke, nbreaks = 6, label = TRUE, label_size = 3)
+```
+
+```{r}
+HP_category <- rep(poke$HP ,nrow(poke))
+poke <- data.frame(poke , HP_category)
+```
+
+
+```{r}
+poke$HP_category<-  as.factor(ifelse(poke$HP_category <= 49, 'Level 1', 
+                    ifelse(poke$HP_category >= 50 & poke$HP_category <= 99,'Level 2',
+                    ifelse(poke$HP_category >= 100 & poke$HP_category <= 149,'Level 3',
+                    ifelse(poke$HP_category >= 150 & poke$HP_category <= 199, 'Level 4',
+                    ifelse(poke$HP_category >= 200 & poke$HP_category <= 249, 'Level 5',
+'Level 6'))))))
+
+```
+
+
+```{r}
+tapply(poke$Attack, poke$HP_category, FUN = mean)
+```
+```{r}
+table(poke$Legendary)
+```
+```{r}
+mega_poke<-grepl("Mega",poke$Name)
+poke<-data.frame(poke,mega_poke)
+table(mega_poke)
+```
+```{r}
+legendary_poke <- subset(poke,poke$Legendary=='TRUE')
+```
+
+```{r}
+legendary_poke$mega_poke<-gsub("TRUE","Mega Poke",legendary_poke$mega_poke)
+legendary_poke$mega_poke<-gsub("FALSE","NON-Mega Poke",legendary_poke$mega_poke)
+```
+
+
+```{r}
+prop.table(table(legendary_poke$mega_poke))
+```
+

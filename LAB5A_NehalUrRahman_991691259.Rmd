@@ -1,0 +1,178 @@
+---
+title: "Lab 5A"
+author: "Nehal Ur Rahman"
+date: "`r Sys.Date()`"
+output: word_document
+---
+NAME: NEHAL UR RAHMNAN
+STUDENT ID: 991691259
+
+Introduction: 
+In lab 5A we are going to analyze Pokemon dataset and perform the given instructions to answer the questions.
+This dataset is about the different types of pokemon and its strengths in terms of HP, Attack, Defense, Special attack, Special Defense and Speed.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#We are loading the below library to perform various functions.
+```{r}
+library(sets)
+library(ggplot2)
+library(tidyverse)
+library(ISLR)
+library(moments)
+library(dplyr) 
+library(GGally)
+```
+The Pokemon data is loaded by setting the session directory. 
+```{r}
+poke <- read.csv("Pokemon.csv")
+head(poke)
+```
+
+We are using the cat function to print the column names of the pokemon dataset with the help of colnames function.
+```{r}
+cat("Column Names : ", colnames(poke))
+```
+
+Using Summary function`we display the statistical information about the numerical variables in the dataset.
+```{r}
+cat("\nSummary of data: \n \n")
+summary(poke)
+```
+
+I have checked if there are any NA values present in the dataset to see if cleaning is required. 
+```{r}
+colSums(is.na(poke))
+```
+
+After going through the dataset I have noticed that there are some blank spaces in Type.2 variable. I have decided not to clean this variable as only some pokemon have its type 2 and thus it doesn't need to be cleaned. Cleaning it will lead to loss of a large chunk of data unnecessarily.
+
+#Deleting any duplicates if present.
+```{r}
+poke <- poke[!duplicated(poke), ]
+```
+
+
+```{r}
+str(poke)
+```
+
+The Pokemon dataset consists of 800 observations and 13 variables.
+3 of the variables are of character type, 9 are of integer type and 1 of logical type.
+
+##Question 1
+
+Exploration
+```{r}
+#PLOT 1
+barplot(table(poke$Type.1), main="Frequency of various Type 1 Pokemon", col="red" , xlab="Type 1 of Pokemon", ylab = "Frequency")
+```
+
+From the above barplot we can see the frequency of Type 1 pokemon in the dataset. The graph got is not a normal distribution graph and has many peaks.
+
+```{r}
+#PLOT 2
+barplot(table(poke$Type.2), main="Frequency of various Type 2 Pokemon", col="skyblue" , xlab="Type 2 of Pokemon", ylab = "Frequency")
+```
+
+From the above barplot we can see the frequency of Type 2 pokemon in the dataset. The graph got is skewed towards the right and is uni-modal. The plot is unimodal as it has only one peak
+
+
+
+```{r}
+#PLOT 3
+as.factor(poke$Legendary)
+barplot(table(poke$Legendary), main="Total number of Legendary Pokemon", col="gold" , xlab="TRUE = LEGENDARY POKEMON & FALSE = NOT LEGENDARY POKEMON")
+```
+
+The plot shown above gives us information of how many legendary pokemons are there in the dataset. Therefore, most of the pokemons are not legendary in the given dataset and a very small number of pokemons are legendary.
+
+```{r}
+#PLOT 4
+ggcorr(poke, nbreaks = 6, label = TRUE, label_size = 3)
+```
+
+With the help correlation matrix given above, we can see how different numerical variables are strongly or weakly related to each other.
+From the correlation matrix we get to know that the TOTAL variable has strong correlation with HP, Attack, Defense, Special attack, Special Defense and Speed.
+The variable X and Generation are strongly correlated as well.
+
+##Question 2
+
+#Step 1
+First we create another variable called HP_category which replicates the values of HP.
+The HP_category is the stored in the poke dataset along with other variables. So now we have 14 variables.
+```{r}
+HP_category <- rep(poke$HP ,)
+poke <- data.frame(poke , HP_category)
+```
+
+```{r}
+str(poke)
+```
+
+
+#Step 2
+Now, we have categorized the Pokemon based on its HP. Therefore, 6 levels of HP_category have been created for the given sets of HP using ifelse condition.
+```{r}
+poke$HP_category<-  as.factor(ifelse(poke$HP_category <= 49, 'Level 1: (-∞, 49]', 
+                    ifelse(poke$HP_category >= 50 & poke$HP_category <= 99,'Level 2: [50, 99]',
+                    ifelse(poke$HP_category >= 100 & poke$HP_category <= 149,'Level 3: [100, 149]',
+                    ifelse(poke$HP_category >= 150 & poke$HP_category <= 199, 'Level 4: [150, 199]',
+                    ifelse(poke$HP_category >= 200 & poke$HP_category <= 249, 'Level 5: [200, 249]',
+'Level 6: [250, +∞)'))))))
+
+```
+
+##Question 3
+
+Using tapply function the average Attack strength for each HP_category is found.
+```{r}
+tapply(poke$Attack, poke$HP_category, FUN = mean)
+```
+From the above output we camn infer that the mean attack strength is the highest for Level 3 Pokemon and the least for level 6 pokemon
+
+
+##Question 4
+
+#Step 1 
+First we see the total number of legendary pokemon in the dataset(TRUE = LEGENDARY POKEMON & FALSE = NOT LEGENDARY POKEMON)
+```{r}
+table(poke$Legendary)
+```
+There are total of 65 legendary pokemon and 735 non-legendary pokemon in the dataset.
+
+#Step 2
+Now we check if Mega is present in the name of the Pokemon using grepl function and store its value in the poke dataset.
+```{r}
+mega_poke<-grepl("Mega",poke$Name)
+poke<-data.frame(poke,mega_poke)
+table(mega_poke)
+```
+The grepl function returns a logical value(TRUE or FALSE) depending on the word pattern given.
+Therefore, there are a total of 49 Mega-Evolved Pokémon and 751 non-Mega-Evolved Pokémon.
+
+#Step 3 
+Now we make another dataset as the subset of poke in which there are only legendary pokemons.
+```{r}
+legendary_poke <- subset(poke,poke$Legendary=='TRUE')
+str(legendary_poke)
+```
+
+Now we have 15 variables in the dataset after adding the variable mega_poke.
+
+#Step 4
+We substitute the True with Mega Poke and False with Non Mega to get a better idea of the proportion.
+```{r}
+legendary_poke$mega_poke<-gsub("TRUE","Mega Poke",legendary_poke$mega_poke)
+legendary_poke$mega_poke<-gsub("FALSE","NON-Mega Poke",legendary_poke$mega_poke)
+```
+
+Using the proportion table we are able to find out proportion of the Mega-Evolved Pokémon and non-Mega-Evolved Pokémon that have a Legendary value(Legendary = TRUE). 
+```{r}
+prop.table(table(legendary_poke$mega_poke))
+```
+
+With the output above, we  understand that the proportion of Mega-Evolved Pokémon and non-Mega-Evolved Pokémon are: 
+Mega-Evolved Pokémon = 9.23%
+Non-Mega-Evolved Pokémon = 90.76% 
