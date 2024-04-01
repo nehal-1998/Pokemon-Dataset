@@ -1,5 +1,5 @@
 # Introduction
-In Lab 5A, we analyze the Pokemon dataset and perform various instructions to answer questions. This dataset contains information about different types of Pokemon and their strengths in terms of HP, Attack, Defense, Special Attack, Special Defense, and Speed.
+We will be analyzing the Pokemon dataset and performing various instructions to answer questions. This dataset contains information about different types of Pokemon and their strengths in terms of HP, Attack, Defense, Special Attack, Special Defense, and Speed.
 
 ## Libraries Used
 sets
